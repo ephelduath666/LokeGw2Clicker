@@ -20,6 +20,7 @@
 #define TB_MOUSEX                       1000
 #define TB_MOUSEY                       1001
 #define CB_PROFILE                      1100
+#define TB_NUM_CLICKS                   1200
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
