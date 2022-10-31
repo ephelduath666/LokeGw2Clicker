@@ -19,6 +19,15 @@ HINSTANCE hInst;                                // current instance
 HWND hWndMain;                                  // Main window handler
 WCHAR szTitle[MAX_LOADSTRING];                  // The title bar text
 WCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name
+HBRUSH brshSolidWindowColor = nullptr;
+HWND tbNumClicks = nullptr;
+
+// Global config
+//
+int numClicks = 0;
+int windowH = 150;
+int windowW = 350;
+COLORREF bgColor = COLORREF(0x550055);
 
 TCHAR Profiles[3][30] =
 {
@@ -26,6 +35,8 @@ TCHAR Profiles[3][30] =
     TEXT("Snow Globe Gobler"),
     TEXT("Just get rid of the stack")
 };
+
+
 
 HWND tbMouseX, tbMouseY, cbProfile;
 bool isClicking = FALSE;
@@ -62,6 +73,14 @@ void StopClicking() {
 }
 
 void StartClicking() {
+    wchar_t tcNumClicks[4] = {0};
+    SendMessage(tbNumClicks, WM_GETTEXT, (WPARAM)4, (LPARAM)tcNumClicks);
+    if (wcslen(tcNumClicks) > 0) {
+        numClicks = _wtoi(tcNumClicks);
+    }
+    else {
+        numClicks = 0;
+    }
     POINT p;
     int ix = ComboBox_GetCurSel(cbProfile);
     P_CLICKER_INFO currentClickerInfo = &ciProfiles[ix];
@@ -85,7 +104,6 @@ void StartClicking() {
         StopClicking();
     }
     hClickerThread = CreateThread(NULL, 0, ClickerFunc, currentClickerInfo, 0, &threadID);
-
 }
 
 
@@ -137,6 +155,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 // Close the application
 //
 void CloseMe() {
+    DeleteObject(brshSolidWindowColor);
     UnregisterHotKey(hWndMain, 2);
     PostQuitMessage(0);
 }
@@ -167,6 +186,7 @@ DWORD WINAPI ClickerFunc(LPVOID lpParam) {
     inputs[3].mi.mouseData = XBUTTON1;
 
     UINT errors = 0;
+    int loop = 0;
     while (isClicking) {
         sleep_ms = currentClickerInfo->delay_in_ms + (((double)rand() / RAND_MAX) * (rnd_range * 2) - (rnd_range / 2));
         POINT p;
@@ -198,6 +218,11 @@ DWORD WINAPI ClickerFunc(LPVOID lpParam) {
             //Beep(1000, 100);
         }
         Sleep(sleep_ms);
+        loop++;
+        if (numClicks != 0) {
+            if (loop >= numClicks)
+                StopClicking();
+        }
     }
     return 0L;
 }
@@ -242,12 +267,11 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
    hInst = hInstance; // Store instance handle in our global variable
-   int wndW = 350, wndH = 125;
    std::wstringstream ss;
    ss << szTitle << " - Version ";
    ss << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_REVISION << "." << VERSION_BUILD;
    hWndMain = CreateWindowW(szWindowClass, ss.str().c_str(), WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME ,
-      CW_USEDEFAULT, 0, wndW, wndH, nullptr, nullptr, hInstance, nullptr);
+      CW_USEDEFAULT, 0, windowW, windowH, nullptr, nullptr, hInstance, nullptr);
 
    if (!hWndMain)
    {
@@ -258,15 +282,16 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    
    // Buttons
    //
-   int btnW = (int)(wndW * 20) / 100;
+   int btnW = (int)(windowW * 20) / 100;
    int btnH = (int)(btnW / 3);
-   int btnMargin = int(btnW / 10);
-   int offset = btnMargin;
+   //int btnMargin = int(btnW / 10);
+   //int offset = btnMargin;
    //HWND btnStart = CreateButton(hWnd, BTN_START, L"Start", offset, 100, btnW, btnH);
-   offset += btnW + btnMargin;
+   //offset += btnW + btnMargin;
    //HWND btnStop = CreateButton(hWnd, BTN_STOP, L"Stop", offset, 100, btnW, btnH);
-   offset = (wndW / 2) - (btnW/2);
-   HWND btnQuit = CreateButton(hWndMain, BTN_QUIT, L"Quit", offset, 50, btnW, btnH);
+   int offset = (windowW / 2) - (btnW/2);
+   int offsetY = windowH - btnH*3;
+   HWND btnQuit = CreateButton(hWndMain, BTN_QUIT, L"Quit", offset, offsetY, btnW, btnH);
 
    // Mouse area
    // 
@@ -276,8 +301,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
    // Profile combo box
    //
-   int cbW = (wndW / 4) * 3;
-   offset = (wndW / 2) - (cbW / 2);
+   int cbW = (windowW / 4) * 3;
+   offset = (windowW / 2) - (cbW / 2);
    cbProfile = CreateComboBox(hWndMain, CB_PROFILE, offset, 15, cbW, 100);
    TCHAR A[32];
    memset(&A, 0, sizeof(A));
@@ -287,6 +312,19 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    }
    SendMessage(cbProfile, CB_SETCURSEL, (WPARAM)0, (LPARAM)0);
 
+   // Config
+   //
+   SIZE lpsText;
+   HWND lbl1 = CreateLabel(hWndMain, L"Num clicks:", offset, 50, 100, 15);
+   HDC hdc = GetDC(lbl1);
+   GetTextExtentPoint32(hdc, L"Num clicks:", 11, &lpsText);
+   int tbW = lpsText.cx;
+   GetTextExtentPoint32(hdc, L"88888", 5, &lpsText);
+   //HWND lbl = CreateTextBox(hWndMain, 4, L"100", offset, 45, 50, 10);
+   tbNumClicks = CreateNumericBox(hWndMain, TB_NUM_CLICKS, L"", offset + tbW + 10, 48, lpsText.cx, lpsText.cy +4);
+   SendMessage(tbNumClicks, (UINT)EM_SETLIMITTEXT, (WPARAM)4, (LPARAM)0);
+
+   
    // Register HotKey
    //
    if (!RegisterHotKey(
@@ -297,6 +335,9 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    )) {
        MessageBox(NULL, L"Unable to register HotKey", szTitle, MB_ICONERROR);
    }
+
+   // Load brushes
+   brshSolidWindowColor = CreateSolidBrush(bgColor);
 
    ShowWindow(hWndMain, nCmdShow);
    UpdateWindow(hWndMain);
@@ -341,6 +382,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
         }
         break;
+    case WM_CTLCOLORSTATIC:
+        {
+        SetTextColor((HDC)wParam, RGB(255, 255, 255));
+        SetBkColor((HDC)wParam, bgColor);
+        return (INT_PTR)brshSolidWindowColor;
+        }
+        break;
     case WM_PAINT:
         {
             PAINTSTRUCT ps;
@@ -351,8 +399,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             r.right = 400;
             r.top = 0;
             r.bottom = 300;
-            HBRUSH b = CreateSolidBrush(COLORREF(0x550055));
-            FillRect(hdc, &r, b);            
+            FillRect(hdc, &r, brshSolidWindowColor);
             EndPaint(hWnd, &ps);
         }
         break;
