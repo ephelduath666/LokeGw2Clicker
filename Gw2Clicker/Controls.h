@@ -2,6 +2,8 @@
 #include "framework.h"
 #include <CommCtrl.h>
 
+namespace loke {
+	
 HWND CreateButton(HWND parent, int id, LPCWSTR text, int x, int y, int w, int h) {
 	return CreateWindow(
 		L"BUTTON",
@@ -86,3 +88,4 @@ HWND CreateComboBox(HWND parent, int id,int x, int y, int w, int h) {
 
 }
 
+}
