@@ -4,13 +4,13 @@
 namespace loke {
 	namespace gw2clicker {
 		class ThreadParam;
-
+		 
 		class ClickerThread {
 		private:
 			BOOL _isClicking = FALSE;
 			static DWORD WINAPI ClickerFunc(LPVOID lpParam);
 			int _mouseX = 0, _mouseY = 0;
-			HANDLE _hClickerThread;
+			HANDLE _hClickerThread = 0L;
 			DWORD _threadID = 0;
 			ThreadParam *_tParam = nullptr;
 
