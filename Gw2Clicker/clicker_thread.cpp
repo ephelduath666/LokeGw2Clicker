@@ -25,48 +25,53 @@ DWORD __stdcall loke::gw2clicker::ClickerThread::ClickerFunc(LPVOID lpParam)
 
     UINT errors = 0;
     int loop = 0;
-    while (tp->parent->IsClicking()) {
+    SendMessage(tp->hMainWindow, WM_LOKE_CLICKER_STATUS, 0, TRUE);
+    BOOL running = tp->parent->IsClicking();
+    while (running) {
         sleep_ms = tp->currentClickerInfo->delay_in_ms + (((double)rand() / RAND_MAX) * (rnd_range * 2) - (rnd_range / 2));
         POINT p;
         GetCursorPos(&p);
         POINT mp = tp->parent->GetMousePos();
         if (max(p.x, mp.x) - min(p.x, mp.x) > 20 ||
             max(p.y, mp.y) - min(p.y, mp.y) > 20) {
-            tp->parent->Stop();
-            return 0L;
-        }
-        p.x = mp.x;
-        p.y = mp.y;
-        inputs[0].mi.dx = tp->currentClickerInfo->mouse_x + (((double)rand() / RAND_MAX) * (x_range * 2) - (x_range / 2));
-        inputs[0].mi.dy = tp->currentClickerInfo->mouse_y + (((double)rand() / RAND_MAX) * (y_range * 2) - (y_range / 2));
-        inputs[1].mi.dx = inputs[0].mi.dx;
-        inputs[1].mi.dy = inputs[0].mi.dy;
-        inputs[2].mi.dx = inputs[0].mi.dx;
-        inputs[2].mi.dy = inputs[0].mi.dy;
-        inputs[3].mi.dx = inputs[0].mi.dx;
-        inputs[3].mi.dy = inputs[0].mi.dy;
-
-        UINT numCommands = (tp->currentClickerInfo->doubleClick) ? 4 : 2;
-        UINT uSent = SendInput(numCommands, inputs, sizeof(INPUT));
-        if (uSent != numCommands) {
-            // Did not send every command. Log it
-            errors++;
-            //Beep(500, 200);
+            running = false;
         }
         else {
-            //Beep(1000, 100);
-        }
-        Sleep(sleep_ms);
-        loop++;
-        if (tp->currentClickerInfo->num_clicks != 0) {
-            if (loop >= tp->currentClickerInfo->num_clicks)
-                tp->parent->Stop();
+            p.x = mp.x;
+            p.y = mp.y;
+            inputs[0].mi.dx = tp->currentClickerInfo->mouse_x + (((double)rand() / RAND_MAX) * (x_range * 2) - (x_range / 2));
+            inputs[0].mi.dy = tp->currentClickerInfo->mouse_y + (((double)rand() / RAND_MAX) * (y_range * 2) - (y_range / 2));
+            inputs[1].mi.dx = inputs[0].mi.dx;
+            inputs[1].mi.dy = inputs[0].mi.dy;
+            inputs[2].mi.dx = inputs[0].mi.dx;
+            inputs[2].mi.dy = inputs[0].mi.dy;
+            inputs[3].mi.dx = inputs[0].mi.dx;
+            inputs[3].mi.dy = inputs[0].mi.dy;
+
+            UINT numCommands = (tp->currentClickerInfo->doubleClick) ? 4 : 2;
+            UINT uSent = SendInput(numCommands, inputs, sizeof(INPUT));
+            if (uSent != numCommands) {
+                // Did not send every command. Log it
+                errors++;
+                //Beep(500, 200);
+            }
+            else {
+                //Beep(1000, 100);
+            }
+            Sleep(sleep_ms);
+            loop++;
+            if (tp->currentClickerInfo->num_clicks != 0) {
+                if (loop >= tp->currentClickerInfo->num_clicks)
+                    running = false;
+            }
         }
     }
+    SendMessage(tp->hMainWindow, WM_LOKE_CLICKER_STATUS, 0, FALSE);
+    tp->parent->Stop();
     return 0L;
 }
 
-void loke::gw2clicker::ClickerThread::Start(loke::gw2clicker::P_CLICKER_INFO currentClickerInfo)
+void loke::gw2clicker::ClickerThread::Start(HWND hMainWnd, loke::gw2clicker::P_CLICKER_INFO currentClickerInfo)
 {
     POINT p;
     if (GetCursorPos(&p)) {
@@ -89,6 +94,7 @@ void loke::gw2clicker::ClickerThread::Start(loke::gw2clicker::P_CLICKER_INFO cur
         Stop();
     }
     _tParam = new ThreadParam();
+    _tParam->hMainWindow = hMainWnd;
     _tParam->parent = this;
     _tParam->currentClickerInfo = currentClickerInfo;
     _hClickerThread = CreateThread(NULL, 0, ClickerFunc, _tParam, 0, &_threadID);
@@ -100,7 +106,7 @@ void loke::gw2clicker::ClickerThread::Stop()
     Beep(750, 80);
     Beep(750, 80);
     DWORD ret;
-    WaitForSingleObject(_hClickerThread, 5000);
+    //WaitForSingleObject(_hClickerThread, 5000);
     _hClickerThread = nullptr;
     _tParam = nullptr;
 }

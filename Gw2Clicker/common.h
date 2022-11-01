@@ -1,10 +1,14 @@
 #pragma once
 #include "framework.h"
 
+#define WM_LOKE_CLICKER_STATUS (WM_USER + 0x0100)
+#define MAX_LOADSTRING 100
+
 namespace loke {
 	namespace gw2clicker {
 		static HBRUSH _brshSolidWindowColor = nullptr;
 		static COLORREF _bgColor = COLORREF(0x550055);
+		static WCHAR _szTitle[MAX_LOADSTRING];                  // The title bar text
 
 		typedef struct ClickerInfo {
 			LPCWSTR name = L"";

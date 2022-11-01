@@ -41,27 +41,20 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     {
         switch(msg.message) {
             case WM_HOTKEY:
-                POINT p;
-                if (_ptrClicker->IsClicking()) {
-                    _ptrClicker->Stop();
-                }
-                else {
-                    _ptrClicker->Start(_ptrWindow->GetProfile());
-                }
-                break;
+                    POINT p;
+                    if (_ptrClicker->IsClicking()) {
+                        _ptrClicker->Stop();
+                    }
+                    else {
+                        _ptrClicker->Start(_ptrWindow->GetHandler(), _ptrWindow->GetProfile());
+                    }
+                    break;
         }
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }
 
     return (int) msg.wParam;
-}
-
-//
-// Close the application
-//
-void CloseMe() {
-    PostQuitMessage(0);
 }
 
 

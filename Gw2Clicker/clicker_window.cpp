@@ -32,10 +32,7 @@ loke::gw2clicker::ClickerWindow::ClickerWindow(HINSTANCE hInstance) : ClickerWin
 }
 
 BOOL loke::gw2clicker::ClickerWindow::XWindow(int nCmdShow) {
-    std::wstringstream ss;
-    ss << _szTitle << " - Version ";
-    ss << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_REVISION << "." << VERSION_BUILD;
-    _hWnd = CreateWindowW(_szWindowClass, ss.str().c_str(), WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME,
+    _hWnd = CreateWindowW(_szWindowClass, GetTitle().c_str(), WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME,
         CW_USEDEFAULT, 0, _windowW, _windowH, nullptr, nullptr, _hInstance, nullptr);
 
     if (!_hWnd)
@@ -136,6 +133,11 @@ LRESULT CALLBACK loke::gw2clicker::ClickerWindow::WndProc(HWND hwnd, UINT msg, W
         }
     }
     break;
+    case WM_LOKE_CLICKER_STATUS:
+    {
+        SetActiveStatus(hwnd, (BOOL)lParam);
+    }
+    break;
     case WM_CTLCOLORSTATIC:
     {
         SetTextColor((HDC)wParam, RGB(255, 255, 255));
@@ -173,6 +175,14 @@ void loke::gw2clicker::ClickerWindow::LoadResources() {
 
 }
 
+std::wstring loke::gw2clicker::ClickerWindow::GetTitle()
+{
+    std::wstringstream ss;
+    ss << _szTitle << " - Version ";
+    ss << VERSION_MAJOR << "." << VERSION_MINOR << "." << VERSION_REVISION << "." << VERSION_BUILD;
+    return ss.str();
+}
+
 int loke::gw2clicker::ClickerWindow::GetNumClicks() {
     int numClicks = 0;
     wchar_t tcNumClicks[4] = { 0 };
@@ -191,4 +201,16 @@ loke::gw2clicker::P_CLICKER_INFO loke::gw2clicker::ClickerWindow::GetProfile() {
     int ix = ComboBox_GetCurSel(_cbProfile);
     _ciProfiles[ix].num_clicks = GetNumClicks();
     return &_ciProfiles[ix];
+}
+
+void loke::gw2clicker::ClickerWindow::SetActiveStatus(HWND hwnd, BOOL status)
+{
+    if (status) {
+        std::wstringstream ss;
+        ss << GetTitle() << " - ACTIVE";
+        SetWindowText(hwnd, ss.str().c_str());
+    }
+    else {
+        SetWindowText(hwnd, GetTitle().c_str());
+    }
 }

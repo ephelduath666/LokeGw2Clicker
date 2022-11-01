@@ -5,7 +5,7 @@
 #define VERSION_MAJOR               1
 #define VERSION_MINOR               0
 #define VERSION_REVISION            1
-#define VERSION_BUILD               21
+#define VERSION_BUILD               37
 
 #define VER_FILE_DESCRIPTION_STR    "GW2 Auto Clicker"
 #define VER_FILE_VERSION            VERSION_MAJOR, VERSION_MINOR, VERSION_REVISION, VERSION_BUILD

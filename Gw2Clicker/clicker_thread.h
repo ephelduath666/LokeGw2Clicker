@@ -15,7 +15,7 @@ namespace loke {
 			ThreadParam *_tParam = nullptr;
 
 		public:
-			void Start(loke::gw2clicker::P_CLICKER_INFO currentClickerInfo);
+			void Start(HWND hMainWnd, loke::gw2clicker::P_CLICKER_INFO currentClickerInfo);
 			void Stop();
 			BOOL IsClicking();
 			POINT GetMousePos();
@@ -27,6 +27,7 @@ namespace loke {
 		public:
 			ClickerThread* parent = nullptr;
 			loke::gw2clicker::P_CLICKER_INFO currentClickerInfo = nullptr;
+			HWND hMainWindow = nullptr;
 		};
 
 	};
