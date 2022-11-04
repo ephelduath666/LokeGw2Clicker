@@ -36,10 +36,12 @@ namespace gw2clicker {
 		P_CLICKER_INFO GetProfile();
 		static void SetActiveStatus(HWND hwnd, BOOL status);
 		HWND GetHandler() { return _hWnd; }
+		LPCWSTR GetHelpText() { return _szHelpText; }
 
 	private:
 		ClickerWindow();
 		static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+		static INT_PTR CALLBACK About(HWND, UINT, WPARAM, LPARAM);
 		void LoadResources();
 		static std::wstring GetTitle();
 	};

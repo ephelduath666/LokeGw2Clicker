@@ -1,5 +1,7 @@
 #include "clicker_wnd.h"
 #include "Controls.h"
+#include <vector>
+#include <string>
 
 loke::gw2clicker::ClickerWindow::~ClickerWindow() {
     DeleteObject(_brshSolidWindowColor);
@@ -11,6 +13,7 @@ loke::gw2clicker::ClickerWindow::ClickerWindow() {
 }
 
 loke::gw2clicker::ClickerWindow::ClickerWindow(HINSTANCE hInstance) : ClickerWindow() {
+    ClickerWindow();
     WNDCLASSEXW wcex;
     _hInstance = hInstance;
 
@@ -53,8 +56,8 @@ BOOL loke::gw2clicker::ClickerWindow::XWindow(int nCmdShow) {
     //HWND btnStop = CreateButton(hWnd, BTN_STOP, L"Stop", offset, 100, btnW, btnH);
     int offset = (_windowW / 2) - (btnW / 2);
     int offsetY = _windowH - btnH * 3;
-    HWND btnQuit = loke::CreateButton(_hWnd, BTN_QUIT, L"Quit", offset, offsetY, btnW, btnH);
-
+    HWND btnQuit = loke::CreateButton(_hWnd, BTN_QUIT, L"&Quit", offset, offsetY, btnW, btnH);
+    HWND btnAbout = loke::CreateButton(_hWnd, BTN_ABOUT, L"&About", _windowW - btnW - 20, offsetY, btnW, btnH);
     // Mouse area
     // 
     //tbMouseX = CreateTextBox(hWnd, TB_MOUSEX, L"", 100, 20, 50, 20);
@@ -115,11 +118,10 @@ LRESULT CALLBACK loke::gw2clicker::ClickerWindow::WndProc(HWND hwnd, UINT msg, W
     case WM_COMMAND:
     {
         if (HIWORD(wParam) == BN_CLICKED) {
-            std::wstringstream ss;
-            ss << L"Button ID: ";
-            ss << LOWORD(wParam);
-            //MessageBox(NULL, ss.str().c_str(), L"Bøttån", MB_ICONERROR);
             switch (LOWORD(wParam)) {
+            case BTN_ABOUT:
+                DialogBoxParamW(NULL, MAKEINTRESOURCE(IDD_ABOUTBOX), hwnd, (DLGPROC)&ClickerWindow::About, 0L);
+                break;
             case BTN_QUIT:
                 PostQuitMessage(0);
             }
@@ -168,9 +170,43 @@ LRESULT CALLBACK loke::gw2clicker::ClickerWindow::WndProc(HWND hwnd, UINT msg, W
     return 0;
 }
 
+INT_PTR loke::gw2clicker::ClickerWindow::About(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    UNREFERENCED_PARAMETER(lParam);
+    switch (message)
+    {
+    case WM_INITDIALOG:
+    {
+        SendMessage(GetDlgItem(hwnd, IDC_EDIT1), WM_SETTEXT, FALSE, (LPARAM)_szHelpText);
+        /*
+        wchar_t* tok = NULL;
+        wchar_t* next_tok = NULL;
+        tok = wcstok_s(_szHelpText, L"\n", &next_tok);
+        while (tok != NULL) {
+            int textLen = SendMessage(GetDlgItem(hwnd, IDC_EDIT1), WM_GETTEXTLENGTH, (WPARAM)0, (LPARAM)0);
+            SendMessage(GetDlgItem(hwnd, IDC_EDIT1), EM_SETSEL, (WPARAM)0, (LPARAM)textLen);
+            SendMessage(GetDlgItem(hwnd, IDC_EDIT1), EM_REPLACESEL, FALSE, (LPARAM)tok);
+            tok = wcstok_s(NULL, L"\n", &next_tok);
+        }
+        */
+    }
+    return (INT_PTR)TRUE;
+
+    case WM_COMMAND:
+        if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
+        {
+            EndDialog(hwnd, LOWORD(wParam));
+            return (INT_PTR)TRUE;
+        }
+        break;
+    }
+    return (INT_PTR)FALSE;
+}
+
 
 void loke::gw2clicker::ClickerWindow::LoadResources() {
     LoadStringW(_hInstance, IDS_APP_TITLE, _szTitle, MAX_LOADSTRING);
+    LoadStringW(_hInstance, IDS_USAGE, _szHelpText, 1024);
     LoadStringW(_hInstance, IDC_GW2CLICKER, _szWindowClass, MAX_LOADSTRING);
 
 }

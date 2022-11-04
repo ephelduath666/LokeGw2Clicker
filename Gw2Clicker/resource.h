@@ -8,6 +8,7 @@
 #define IDS_APP_TITLE                   103
 #define IDD_ABOUTBOX                    103
 #define IDM_ABOUT                       104
+#define IDS_USAGE                       104
 #define IDI_GW2CLICKER                  107
 #define IDI_SMALL                       108
 #define IDC_GW2CLICKER                  109
@@ -16,8 +17,12 @@
 #define IDI_ICON1                       138
 #define BTN_START                       900
 #define BTN_STOP                        901
+#define BTN_ABOUT                       902
 #define BTN_QUIT                        909
+#define TXT_HELP                        999
+#define IDS_TXT_HELP                    999
 #define TB_MOUSEX                       1000
+#define IDC_EDIT1                       1000
 #define TB_MOUSEY                       1001
 #define CB_PROFILE                      1100
 #define TB_NUM_CLICKS                   1200
@@ -30,7 +35,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        139
 #define _APS_NEXT_COMMAND_VALUE         32773
-#define _APS_NEXT_CONTROL_VALUE         1000
+#define _APS_NEXT_CONTROL_VALUE         1001
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

@@ -9,7 +9,7 @@ namespace loke {
 		static HBRUSH _brshSolidWindowColor = nullptr;
 		static COLORREF _bgColor = COLORREF(0x550055);
 		static WCHAR _szTitle[MAX_LOADSTRING];                  // The title bar text
-
+		static WCHAR _szHelpText[1024];
 		typedef struct ClickerInfo {
 			LPCWSTR name = L"";
 			int delay_in_ms = 1000;
