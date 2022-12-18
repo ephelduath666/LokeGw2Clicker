@@ -20,8 +20,8 @@ namespace gw2clicker {
 
 		CLICKER_INFO _ciProfiles[3] = {
 			{L"Candy Corn Gobler", 5200, 0, 0, TRUE},
-			{L"Snow Globe Gobler", 100, 0, 0, TRUE},
-			{L"Just get rid of the stack", 50, 0, 0, TRUE}
+			{L"Candy Cane Buff", 50, 0, 0, TRUE, 30},  
+			{L"Just get rid of the stack", 50, 0, 0, TRUE, 250}
 		};
 
 		WCHAR _szWindowClass[MAX_LOADSTRING];            // the main window class name

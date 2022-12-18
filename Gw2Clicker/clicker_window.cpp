@@ -13,7 +13,6 @@ loke::gw2clicker::ClickerWindow::ClickerWindow() {
 }
 
 loke::gw2clicker::ClickerWindow::ClickerWindow(HINSTANCE hInstance) : ClickerWindow() {
-    ClickerWindow();
     WNDCLASSEXW wcex;
     _hInstance = hInstance;
 
