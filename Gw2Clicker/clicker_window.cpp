@@ -48,11 +48,6 @@ BOOL loke::gw2clicker::ClickerWindow::XWindow(int nCmdShow) {
     //
     int btnW = (int)(_windowW * 20) / 100;
     int btnH = (int)(btnW / 3);
-    //int btnMargin = int(btnW / 10);
-    //int offset = btnMargin;
-    //HWND btnStart = CreateButton(hWnd, BTN_START, L"Start", offset, 100, btnW, btnH);
-    //offset += btnW + btnMargin;
-    //HWND btnStop = CreateButton(hWnd, BTN_STOP, L"Stop", offset, 100, btnW, btnH);
     int offset = (_windowW / 2) - (btnW / 2);
     int offsetY = _windowH - btnH * 3;
     HWND btnQuit = loke::CreateButton(_hWnd, BTN_QUIT, L"&Quit", offset, offsetY, btnW, btnH);
@@ -68,6 +63,7 @@ BOOL loke::gw2clicker::ClickerWindow::XWindow(int nCmdShow) {
     int cbW = (_windowW / 4) * 3;
     offset = (_windowW / 2) - (cbW / 2);
     _cbProfile = loke::CreateComboBox(_hWnd, CB_PROFILE, offset, 15, cbW, 100);
+
     TCHAR A[32];
     memset(&A, 0, sizeof(A));
     for (int i = 0; i < ARRAYSIZE(_ciProfiles); i++) {
@@ -87,7 +83,7 @@ BOOL loke::gw2clicker::ClickerWindow::XWindow(int nCmdShow) {
     //HWND lbl = CreateTextBox(hWndMain, 4, L"100", offset, 45, 50, 10);
     _tbNumClicks = loke::CreateNumericBox(_hWnd, TB_NUM_CLICKS, L"", offset + tbW + 10, 48, lpsText.cx, lpsText.cy + 4);
     SendMessage(_tbNumClicks, (UINT)EM_SETLIMITTEXT, (WPARAM)4, (LPARAM)0);
-
+    _snumClickTb = _tbNumClicks;
 
     // Register HotKey
     //
@@ -123,6 +119,22 @@ LRESULT CALLBACK loke::gw2clicker::ClickerWindow::WndProc(HWND hwnd, UINT msg, W
                 break;
             case BTN_QUIT:
                 PostQuitMessage(0);
+            }
+        }
+        else if (HIWORD(wParam) == CBN_SELENDOK) {
+            switch (LOWORD(wParam)) {
+            case CB_PROFILE:
+                // User selecte a profile
+                int ix = SendMessage((HWND)lParam, CB_GETCURSEL, 0L, 0L);
+                wchar_t buff[4];
+                if (_ciProfiles[ix].num_clicks == 0)
+                {
+                    wcscpy_s(buff, 4, L"");
+                }
+                else {                   
+                    _itow_s(_ciProfiles[ix].num_clicks, buff, 10);
+                }
+                SendMessage(_snumClickTb, WM_SETTEXT, FALSE, (LPARAM)buff);
             }
         }
         int wmId = LOWORD(wParam);
@@ -234,7 +246,8 @@ int loke::gw2clicker::ClickerWindow::GetNumClicks() {
 
 loke::gw2clicker::P_CLICKER_INFO loke::gw2clicker::ClickerWindow::GetProfile() {
     int ix = ComboBox_GetCurSel(_cbProfile);
-    _ciProfiles[ix].num_clicks = GetNumClicks();
+    if(_ciProfiles[ix].num_clicks <= 0)
+        _ciProfiles[ix].num_clicks = GetNumClicks();
     return &_ciProfiles[ix];
 }
 
