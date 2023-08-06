@@ -246,8 +246,14 @@ int loke::gw2clicker::ClickerWindow::GetNumClicks() {
 
 loke::gw2clicker::P_CLICKER_INFO loke::gw2clicker::ClickerWindow::GetProfile() {
     int ix = ComboBox_GetCurSel(_cbProfile);
-    if(_ciProfiles[ix].num_clicks <= 0)
-        _ciProfiles[ix].num_clicks = GetNumClicks();
+
+    int nclicks = GetNumClicks();
+    if (nclicks <= 0) {
+        _ciProfiles[ix].num_clicks = 0;
+    }
+    else {
+        _ciProfiles[ix].num_clicks = nclicks;
+    }
     return &_ciProfiles[ix];
 }
 
